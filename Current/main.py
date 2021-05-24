@@ -1,8 +1,6 @@
 import pygame
 import functions as fcs
 import classes as cs
-import PygameTextWriter as pTW
-import PygameKeyTracker as pKT
 
 # starting info
 info  = cs.Info(30)
