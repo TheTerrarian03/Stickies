@@ -1,0 +1,54 @@
+/TITLE Stickies - Things To Change
+/THEME YELLOW
+/SCALE 1
+/SHOW-NUMBERS TRUE
+/EDIT-TITLE FALSE
+/START-CONTENT
+-- Sticky Note Program To Do --
+[*] 1.  Get full arrow functionality working (up+down)
+[*] 2.  Remove Zoom feature, temporarily
+[*] 3.  Add Save Picking
+[*] 4.  Add New Sticky button + functionality
+[ ] 5.  Look into:
+        [ ] - fixing resizing Sticky window bugginess (on linux)
+        [ ] - fixing/adding auto-resizing of Sticky on startup
+        [*] - ways to zoom font sizes
+        [*] - making a keytracker in pygame, to fix
+              pynput bugs with Replit
+        [*] - auto- de-focus + locking
+        [/] - Changing main file name from 'main.py'?
+              What I have:
+              Making a script, then into a '.app'
+        [*] - Adding icon for Sticky program
+[*] 6.  Fix text writing over toolbar
+[*] 7.  Add Support for Home, End, PG-UP, PG-DOWN, etc.
+[ ] 8.  Add Mouse Support? (for moving cursor)
+[ ] 9.  Add Last Open item in settings
+[*] 10. Add Sticky Sticky settings menu (including title attr.)
+        - Now implemented, just add to it when needed.
+[/] 11. Add fun colour themes (yellow, blue, red?, pink, orange,
+        ... green, purple, white, grey, black
+        - Icons should also match colour theme)
+[ ] 12. Add selection support, and #13 as well
+[ ] 13. Copy and Paste functions, would be quite useful
+[ ] 14. Scrolling text (UP+DOWN and LEFT+RIGHT)
+[ ] 15. Bold, italic, and underlining options -
+        - would require some major font processing changes
+          but would be nice to have.
+[*] 16. Idea: in Save picker, have Saves be coloured like they
+        were set in the settings
+        (Would require some changes to the .sticky file)
+[ ] 17. Add Font button, and extra fonts + sizes
+[*] 18. Add Number-On-Side button, because why not?
+[ ] 19. Add PopUps, for things like Saving, Deleting, and Errors.
+[ ] 20. Idea: Add text alignment, to add to my suffering as it is.
+[ ] 21. Idea: Text wrapping, to add to my suffering as well.
+[ ] 22. Idea: Add a Selected-Line highlight bar, like gedit does.
+[ ] 23. Make Save, Open, and Lock shortcuts?
+[*] 24. Add ctrl+Home and End support (thanks mom! <3)
+[ ] 25. Add TouchBar Interactions!
+[ ] 26. IMPORTANT: Add Scaling Feature!
+        [ ] Text
+        [ ] Icons
+
+/END-CONTENT

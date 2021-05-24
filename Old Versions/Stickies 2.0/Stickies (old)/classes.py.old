@@ -1,0 +1,78 @@
+import pygame
+import functions as fcs
+
+DEF_FONT_INFO = [(5, 7, 2, 2), 1, "0123456789.ABCDEFGHIJKLMNOPQRSTUVWXYZ-,\"\'abcdefghijklmnopqrstuvwxyz`~!@#$%^&*()_[]{};:\\|<>/?=+"]
+# items: [(wid, hi, horizMargin, vertiMargin), scale, [o, r, d, e, r, etc]
+
+class sticky:
+  def __init__(self, displayObj, savePath, active, fontImg, fontInfo=DEF_FONT_INFO):
+    self.displayObj = displayObj
+    self.title, self.content = fcs.loadSticky(savePath)
+    self.saved = True
+    self.active = active
+    self.fontImg = pygame.image.load(fontImg)
+    self.fontInfo = fontInfo
+  
+  def __str__(self):
+    return ("Sticky of name: \"" + self.title + "\", saved: \"" + str(self.saved) + "\", active: \"" + str(self.active) + "\", content: \"" + self.content + "\"")
+  
+  def setActive(self):
+    self.active = True
+  
+  def setInactive(self):
+    self.active = False
+  
+  def drawContent(self, dispSurface, margin=(5, 5), debug=True, update=True):
+    x = margin[0]
+    y = margin[1]
+    if debug:
+      print("Starting Drawing")
+    for char in self.content:
+      if char == " ":
+        x += self.fontInfo[0][0]+self.fontInfo[0][2]
+      elif char == "\n":
+        x = margin[0]
+        y += self.fontInfo[0][1]+self.fontInfo[0][3]
+      else:
+        # for non-space characters
+        dispSurface.blit(self.fontImg, (x, y), area=((self.fontInfo[2].find(char)*self.fontInfo[0][0]), 0, self.fontInfo[0][0], self.fontInfo[0][1]))
+        if debug:
+          print(self.fontImg, (x, y), ((self.fontInfo[2].find(char)*self.fontInfo[0][0]), 0, self.fontInfo[0][0], self.fontInfo[0][1]))
+        x += self.fontInfo[0][0]+self.fontInfo[0][2]
+    if debug:
+      print("Done Drawing")
+    if update:
+      pygame.display.update()
+
+class icon:
+  def __init__(self, name, imgPath, pos):
+    self.name = name
+    self.img = pygame.image.load(imgPath)
+    self.pos = pos
+    self.res = (self.img.get_rect()[2], self.img.get_rect()[3])
+  
+  def movePos(self, newPos):
+    self.pos = newPos
+  
+  def draw(self, dispSurface):
+    dispSurface.blit(self.img), self.pos)
+
+class display:
+  def __init__(self, name, mainCol, altCol, res=(150, 120)):
+    self.name = name
+    self.res = res
+    self.surface = pygame.display.set_mode(res, pygame.RESIZABLE)
+    self.mainCol = mainCol
+    self.altCol = altCol
+    pygame.display.set_caption(self.name)
+  
+  def resize(self, wid, hi):
+    self.surface = pygame.display.set_mode((wid, hi), pygame.RESIZABLE)
+    self.res = (wid, hi)
+  
+  def draw(self, update=True):
+    # main area: (0, 0) -> (x, y-20)
+    pygame.draw.rect(self.surface, self.mainCol, (0, 0, self.res[0], self.res[1]-20))
+    pygame.draw.rect(self.surface, self.altCol, (0, self.res[1]-20, self.res[0], 20))
+    if update:
+      pygame.display.update()

@@ -1,0 +1,7 @@
+TODO
+ - add support for:
+  - enter
+  - backspace
+  - delete
+ - fix:
+  - newline confusion with cursor

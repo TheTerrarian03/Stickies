@@ -1,0 +1,38 @@
+def keyActions(self, which="0"):
+  # which can be 0 for all, 1 for mods, 2 for arrows, or 3 for letters/symbols
+  if "0" in which or "2" in which:
+    # moving cursor
+    if self.keyTracker.arrows["LEFT"] and self.cursorPos > 0:
+      self.cursorPos -= 1
+    if self.keyTracker.arrows["RIGHT"] and self.cursorPos < len(self.content):
+      self.cursorPos += 1
+    if self.keyTracker.arrows["UP"] and self.cursorPos > 0:
+      pass
+    if self.keyTracker.arrows["DOWN"] and self.cursorPos < len(self.content):
+      pass
+  if "0" in which or "1" in which:
+    # enter key
+    if self.keyTracker.mods["RETURN"]:
+      self.content += "\n"
+      self.cursorPos += 1
+    # backspace and delete
+    if self.keyTracker.mods["BACKSPACE"]:
+      try:
+        self.content = fcs.removeCharAtPos(self.content, self.cursorPos-1)
+        self.cursorPos -= 1
+      except ValueError:
+        pass  # no action needed
+    if self.keyTracker.mods["DELETE"]:
+      try:
+        self.content = fcs.removeCharAtPos(self.content, self.cursorPos)
+      except IndexError:
+        pass  # no action needed
+  if "0" in which or "3" in which:
+  # normal letters/symbols
+    if self.keyTracker.latest:
+      ### ADD / REPLACE CHARACTERS
+      if self.cursorPos == len(self.content):
+        self.content += self.keyTracker.latest
+      else:
+        self.content = fcs.replaceCharAtPos(self.content, self.cursorPos, self.keyTracker.latest)
+      self.cursorPos += 1
