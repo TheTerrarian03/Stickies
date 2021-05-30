@@ -1,0 +1,3 @@
+- fix settings menu scaling
+- fix load menu scaling
+- add load menu delete button

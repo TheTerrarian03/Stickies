@@ -3,7 +3,7 @@ import functions as fcs
 import classes as cs
 
 # starting info
-info  = cs.Info(30)
+info  = cs.Info(fps=30)
 running = True
 
 # set icon

@@ -34,12 +34,13 @@ class toggleableImg:
       dispSurface.blit(self.imgs[0], (self.pos[0]+self.margins[0], self.pos[1]+self.margins[1]))
 
 class clickableRect:
-  def __init__(self, name, pos, res, mainColor, borderColor, function):
+  def __init__(self, name, pos, res, mainColor, borderColor, margins, function, scale=1):
     self.name = name
     self.pos = pos
-    self.res = res
+    self.res = (res[0]*scale, res[1]*scale)
     self.mC = mainColor
     self.bC = borderColor
+    self.margins = (margins[0]*scale, margins[1]*scale)
     self.func = function
   
   def collide(self, mPos, autoCall=False):
@@ -51,16 +52,17 @@ class clickableRect:
     return False
   
   def draw(self, dispSurface):
-    pygame.draw.rect(dispSurface, self.bC, (self.pos[0], self.pos[1], self.res[0], self.res[1]))  # border
-    pygame.draw.rect(dispSurface, self.mC, (self.pos[0]+2, self.pos[1]+2, self.res[0]-4, self.res[1]-4))  # inside
+    pygame.draw.rect(dispSurface, self.bC, (self.pos[0]+self.margins[0], self.pos[1]+self.margins[1], self.res[0], self.res[1]))  # border
+    pygame.draw.rect(dispSurface, self.mC, (self.pos[0]+2+self.margins[0], self.pos[1]+2+self.margins[1], self.res[0]-4, self.res[1]-4))  # inside
 
 class icon:
-  def __init__(self, name, pos, iconPath, margins, function):
+  def __init__(self, name, pos, iconPath, margins, function, scale=1):
     self.name = name
     self.img = pygame.image.load(iconPath)
-    self.margins = margins
+    self.img = pygame.transform.scale(self.img, (int(self.img.get_rect()[2]*scale), int(self.img.get_rect()[3]*scale)))
+    self.margins = [margins[0]*scale, margins[1]*scale]
     self.func = function
-    self.pos = pos
+    self.pos = [pos[0]*scale, pos[1]*scale]
     self.res = (self.img.get_rect()[2], self.img.get_rect()[3])
     print(self.res)
   
@@ -114,21 +116,29 @@ class stickySave:
 #======================#
 
 class Info:
-  def __init__(self, fps):
+  def __init__(self, fps=30):
     self.stickies = self.loadStickies()
     self.dispObj = None
     self.keyTracker = None
-    self.textWriter = pTW.TextWriter(self.dispObj.surface, (0, 0, 0))
+    self.textWriter = None # pTW.TextWriter(self.dispObj.surface, (0, 0, 0))
     self.clock = pygame.time.Clock()
     self.fps = fps
     # initializing function calls
+    self.setDispObj()
+    self.setTextWriter()    
     self.reset()
   
-  def reset(self):
+  def setDispObj(self):
     self.dispObj = graphicalContainer((500, 350), fcs.rOA(self.stickies).mainColor, fcs.rOA(self.stickies).altColor1)
-    fcs.rOA(self.stickies).resetIconPositions()
-    self.keyTracker = pKT.KeyTracker(fcs.rOA(self.stickies).add, fcs.rOA(self.stickies).backspace, fcs.rOA(self.stickies).directionHandle, fps=self.fps)
+  
+  def setTextWriter(self):
     self.textWriter = pTW.TextWriter(self.dispObj.surface, (0, 0, 0))
+
+  def reset(self):
+    # reset icon positions, set the key tracker, and set the window caption
+    fcs.rOA(self.stickies).resetIconPositions()
+    fcs.rOA(self.stickies).checkMargins()
+    self.keyTracker = pKT.KeyTracker(fcs.rOA(self.stickies).add, fcs.rOA(self.stickies).backspace, fcs.rOA(self.stickies).directionHandle, fps=self.fps)
     pygame.display.set_caption(fcs.rOA(self.stickies).title)
 
   def loadStickies(self):
@@ -165,7 +175,7 @@ class Sticky:
     # set info from attrDict
     self.title = attrDict["TITLE"]
     self.theme = attrDict["THEME"]
-    self.scale = attrDict["SCALE"]
+    self.scale = 1
     self.showNumbers = attrDict["SHOW-NUMBERS"]
     self.editTitle = attrDict["EDIT-TITLE"]
     self.content = attrDict["CONTENT"]
@@ -201,7 +211,6 @@ class Sticky:
     print(self.icons)
     for i in self.icons:
       print(i)
-    self.checkMargins()
     print(self.infoObj)
   
   def __str__(self):
@@ -211,27 +220,28 @@ class Sticky:
     if self.showNumbers:
       currLines = fcs.getTotalLines(self.content)+1  # +1 to account for the "starting at 0"
       digits = len(str(currLines))+1  # +1 for the extra sepparating line
-      newMargins = [ self.baseMargins[0] + ( 12 * digits ), self.baseMargins[1] ]
+      newMargins = [ self.baseMargins[0] + ( self.infoObj.textWriter.charDims[0] * digits ), self.baseMargins[1] ]
       self.margins = newMargins
     else:
       self.margins = self.baseMargins
 
   def loadIcons(self):
     self.icons = {
-      "SAVE": icon("SAVE", (0, 0), ("ASSETS/SAVE-"+self.theme+".png"), (4, 4), self.iconSave),
-      "NEW": icon("NEW", (0, 0), ("ASSETS/NEW-"+self.theme+".png"), (4, 4), self.iconNew),
-      "OPEN": icon("OPEN", (0, 0), ("ASSETS/OPEN-"+self.theme+".png"), (4, 4), self.iconOpen),
-      "SETTINGS": icon("SETTINGS", (0, 0), ("ASSETS/SETTINGS-"+self.theme+".png"), (4, 4), self.iconSettings),
-      "ZOOM-PLUS": icon("ZOOM-PLUS", (0, 0), ("ASSETS/ZOOM-PLUS"+".png"), (4, 4), self.iconZoomPlus),
-      "ZOOM-MINUS": icon("ZOOM-MINUS", (0, 0), ("ASSETS/ZOOM-MINUS"+".png"), (4, 4), self.iconZoomMinus)
+      "SAVE": icon("SAVE", (0, 0), ("ASSETS/SAVE-"+self.theme+".png"), (4, 4), self.iconSave, scale=self.scale),
+      "NEW": icon("NEW", (0, 0), ("ASSETS/NEW-"+self.theme+".png"), (4, 4), self.iconNew, scale=self.scale),
+      "OPEN": icon("OPEN", (0, 0), ("ASSETS/OPEN-"+self.theme+".png"), (4, 4), self.iconOpen, scale=self.scale),
+      "SETTINGS": icon("SETTINGS", (0, 0), ("ASSETS/SETTINGS-"+self.theme+".png"), (4, 4), self.iconSettings, scale=self.scale),
+      "ZOOM-PLUS": icon("ZOOM-PLUS", (0, 0), ("ASSETS/ZOOM-PLUS"+".png"), (4, 4), self.iconZoomPlus, scale=self.scale),
+      "ZOOM-MINUS": icon("ZOOM-MINUS", (0, 0), ("ASSETS/ZOOM-MINUS"+".png"), (4, 4), self.iconZoomMinus, scale=self.scale)
     }
+    # template: icon("NAME", (0, 0), ("ASSETS/NAME-"+self.theme+".png"), (4, 4), self.function)
     self.settingsIcons = {
-      "THEME-YELLOW": clickableRect("YELLOW", (53, 5), (24, 24), (255, 218, 25), (25, 25, 25), self.iconChangeTheme),
-      "THEME-ORANGE": clickableRect("ORANGE", (89, 5), (24, 24), (255, 114, 0), (25, 25, 25), self.iconChangeTheme),
-      "THEME-PINK": clickableRect("PINK", (125, 5), (24, 24), (251, 93, 93), (25, 25, 25), self.iconChangeTheme),
-      "THEME-PURPLE": clickableRect("PURPLE", (161, 5), (24, 24), (151, 53, 255), (25, 25, 25), self.iconChangeTheme),
-      "THEME-BLUE": clickableRect("BLUE", (197, 5), (24, 24), (0, 164, 255), (25, 25, 25), self.iconChangeTheme),
-      "THEME-GREEN": clickableRect("GREEN", (233, 5), (24, 24), (0, 163, 37), (25, 25, 25), self.iconChangeTheme),
+      "THEME-YELLOW": clickableRect("YELLOW", (0, 0), (24, 24), (255, 218, 25), (25, 25, 25), (4, 4), self.iconChangeTheme, scale=self.scale),
+      "THEME-ORANGE": clickableRect("ORANGE", (0, 0), (24, 24), (255, 114, 0), (25, 25, 25), (4, 4), self.iconChangeTheme, scale=self.scale),
+      "THEME-PINK": clickableRect("PINK", (0, 0), (24, 24), (251, 93, 93), (25, 25, 25), (4, 4), self.iconChangeTheme, scale=self.scale),
+      "THEME-PURPLE": clickableRect("PURPLE", (0, 0), (24, 24), (151, 53, 255), (25, 25, 25), (4, 4), self.iconChangeTheme, scale=self.scale),
+      "THEME-BLUE": clickableRect("BLUE", (0, 0), (24, 24), (0, 164, 255), (25, 25, 25), (4, 4), self.iconChangeTheme, scale=self.scale),
+      "THEME-GREEN": clickableRect("GREEN", (0, 0), (24, 24), (0, 163, 37), (25, 25, 25), (4, 4), self.iconChangeTheme, scale=self.scale),
       "SHOW-NUMBERS": toggleableImg("SHOW-NUMBERS-TOGGLE", (98, 34), (4, 4), ["ASSETS/UNCHECK.png", "ASSETS/CHECK.png"], self.iconShowNumbers, value=self.showNumbers),
       "EDIT-TITLE": toggleableImg("EDIT-TITLE-TOGGLE", (105, 67), (4, 4), ["ASSETS/UNCHECK.png", "ASSETS/CHECK.png"], self.iconEditTitle, value=self.editTitle)
     }
@@ -248,7 +258,6 @@ class Sticky:
     print("SAVED")
   
   def iconOpen(self):
-    # print("classes.Sticky.iconOpen called")
     if self.menu == "OPEN":
       self.menu = "CONTENT"
     else:
@@ -266,22 +275,34 @@ class Sticky:
     self.infoObj.changeActive("New Sticky")
 
   def iconSettings(self):
-    # print("classes.Sticky.iconSettings called")
     if self.menu == "SETTINGS":
       self.menu = "CONTENT"
     else:
       self.menu = "SETTINGS"
   
+  def scaleAllItems(self):
+    # some information:
+    # default icon res: 24x24
+    # default icon res + margins: 32x32
+    # default tooblar height: 32
+    self.checkMargins()
+    self.infoObj.dispObj.tbH = 32 * self.scale
+    self.loadIcons()
+    self.resetIconPositions()
+    print("icon res:", self.icons["SAVE"].res)
+    print("icon margins:", self.icons["SAVE"].margins)
+
   def iconZoomPlus(self):
     self.scale += 0.25
     self.infoObj.textWriter.scale(self.scale)
     print(self.infoObj.textWriter.pt)
+    self.scaleAllItems()
   
   def iconZoomMinus(self):
     if self.scale > 1:
       self.scale -= 0.25
     self.infoObj.textWriter.scale(self.scale)
-    print(self.infoObj.textWriter.pt)
+    self.scaleAllItems()
   
   def iconChangeTheme(self, color):
     if color in ["YELLOW", "ORANGE", "PINK", "PURPLE", "BLUE", "GREEN"]:
@@ -334,9 +355,9 @@ class Sticky:
 
   def drawSettings(self):
     # theme (item #1)
-    self.infoObj.textWriter.write("Theme: ", (5, 14))
+    self.infoObj.textWriter.write("Theme: ", (self.baseMargins[0], self.baseMargins[1]+(self.icons["SAVE"].res[1]/2-(self.infoObj.textWriter.charDims[1]/2))))
     # show numbers (item #2)
-    self.infoObj.textWriter.write("Show Numbers: ", (5, 47))
+    self.infoObj.textWriter.write("Show Numbers: ", (self.baseMargins[0], self.baseMargins[1]+self.icons["SAVE"].res[1]+(self.icons["SAVE"].res[1]/2-(self.infoObj.textWriter.charDims[1]/2))))
     # edit title (item #3)
     self.infoObj.textWriter.write("Editing Title: ", (5, 80))
     # icons
@@ -353,14 +374,15 @@ class Sticky:
         pygame.draw.rect(self.infoObj.dispObj.surface, self.altColor1, (self.margins[0]-6, 0, 2, self.infoObj.dispObj.res[1]))
   
   def resetIconPositions(self):
-    x = 4
-    y = self.infoObj.dispObj.res[1]-28
+    # TOOLBAR ICONS
+    # get image res
+    imgRes = self.icons["SAVE"].res
+    margins = self.icons["SAVE"].margins
+    x = margins[0]
+    y = self.infoObj.dispObj.res[1]-self.infoObj.dispObj.tbH+margins[1]
     for icon in ICON_ORDER:
-      if icon == "LOCK":
-        pass
-      else:
-        self.icons[icon].move((x, y))
-        x += 32
+      self.icons[icon].move((x, y))
+      x += imgRes[1]+2*(margins[0])
   
   def mouseDown(self):
     # toolbar icons
