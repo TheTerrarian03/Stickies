@@ -1,0 +1,59 @@
+/TITLE OldToChange
+/THEME GREEN
+/START-CONTENT
+-- sticky note program to do --
+[*] 1.  get full arrow functionality working (up+down)
+[*] 2.  remove zoom feature, temporarily
+[*] 3.  add save picking
+[*] 4.  add new sticky button + functionality
+[ ] 5.  look into:
+        [ ] - fixing resizing sticky window bugginess (on linux)
+        [ ] - fixing/adding auto-resizing of sticky on startup
+        [*] - ways to zoom font sizes
+        [*] - making a keytracker in pygame, to fix
+              pynput bugs with replit
+        [*] - auto- de-focus + locking
+        [/] - changing main file name from 'main.py'?
+              what i have:
+              making a script, then into a '.app'
+        [*] - adding icon for sticky program
+[*] 6.  fix text writing over toolbar
+[*] 7.  add support for home, end, pg-up, pg-down, etc.
+[ ] 8.  add mouse support? (for moving cursor)
+[ ] 9.  add last open item in settings
+[*] 10. add sticky sticky settings menu (including title attr.)
+        - now implemented, just add to it when needed.
+[/] 11. add fun colour themes (yellow, blue, red?, pink, orange,
+        ... green, purple, white, grey, black
+        - icons should also match colour theme)
+[ ] 12. add selection support, and #13 as well
+[ ] 13. copy and paste functions, would be quite useful
+[ ] 14. scrolling text (up+down and left+right)
+[ ] 15. bold, italic, and underlining options -
+        - would require some major font processing changes
+          but would be nice to have.
+[*] 16. idea: in save picker, have saves be coloured like they
+        were set in the settings
+        (would require some changes to the .sticky file)
+[ ] 17. add font button, and extra fonts + sizes
+[*] 18. add number-on-side button, because why not?
+[ ] 19. add popups, for things like saving, deleting, and errors.
+[ ] 20. idea: add text alignment, to add to my suffering as it is.
+[ ] 21. idea: text wrapping, to add to my suffering as well.
+[ ] 22. idea: add a selected-line highlight bar, like gedit does.
+[ ] 23. make save, open, and lock shortcuts?
+[*] 24. add ctrl+home and end support (thanks mom! <3)
+[ ] 25. add touchbar interactions!
+[ ] 26. important: add scaling feature!
+        [ ] text
+        [ ] icons
+[ ] 27. ingore all above things to do until i've compeletly finished
+        implementing using tkinter (against my will) instead of pygame.
+        then, and only then, can i focus on other features (above)
+
+someone save me.......
+bananas, monkeys in pajamas. xd
+banananananananananananananas!!!!
+
+
+/END-CONTENT
