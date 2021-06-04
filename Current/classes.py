@@ -13,16 +13,16 @@ class MainWindow:
         self.setWindowTitle()
         self.chosenTheme = StringVar()
         self.showLineNumbers = BooleanVar()
+        if fcs.getOS() == "macOS":
+            self.osName = "mac"
+        else:
+            self.osName = "pc"
 
         ### sticky objects and stuff
         self.stickies = fcs.getAllStickies()
         if fcs.getLastOpen():
             try:
                 self.stickies = fcs.setNewActive(self.stickies, fcs.getLastOpen())
-                # doing nothing with variables to check for missing attributes
-                self.title
-                self.theme
-                self.colors
             except AttributeError:
                 self.stickies[0].active = True
                 print("except")
@@ -45,24 +45,41 @@ class MainWindow:
         # file sub-menu
         self.fileMenu = Menu(self.menu)
         self.menu.add_cascade(label="File", menu=self.fileMenu)
-        self.fileMenu.add_command(label="New Sticky", accelerator="CMD-N", command=self.newSticky)
-        self.fileMenu.add_command(label="Open", accelerator="CMD-O", command=self.loadStickies)
-        self.fileMenu.add_separator()
-        self.fileMenu.add_command(label="Save Sticky", accelerator="CMD-S", command=self.saveActiveSticky)
+        if self.osName == "mac":
+            self.fileMenu.add_command(label="New Sticky", accelerator="CMD-N", command=self.newSticky)
+            self.fileMenu.add_command(label="Open", accelerator="CMD-O", command=self.loadStickies)
+            self.fileMenu.add_separator()
+            self.fileMenu.add_command(label="Save Sticky", accelerator="CMD-S", command=self.saveActiveSticky)
+        elif self.osName == "pc":
+            self.fileMenu.add_command(label="New Sticky", accelerator="CTRL-N", command=self.newSticky)
+            self.fileMenu.add_command(label="Open", accelerator="CTRL-O", command=self.loadStickies)
+            self.fileMenu.add_separator()
+            self.fileMenu.add_command(label="Save Sticky", accelerator="CTRL-S", command=self.saveActiveSticky)
         self.fileMenu.add_separator()
         self.fileMenu.add_command(label="Exit", command=self.exitWindow)
         # edit sub-menu
         self.editMenu = Menu(self.menu)
         self.menu.add_cascade(label="Edit", menu=self.editMenu)
-        self.editMenu.add_command(label="Undo", accelerator="CMD-Z", state=DISABLED)
-        self.editMenu.add_command(label="Redo", accelerator="CMD-Shift-Z", state=DISABLED)
+        if self.osName == "mac":
+            self.editMenu.add_command(label="Undo", accelerator="CMD-Z", state=DISABLED)
+            self.editMenu.add_command(label="Redo", accelerator="CMD-Shift-Z", state=DISABLED)
+        elif self.osName == "pc":
+            self.editMenu.add_command(label="Undo", accelerator="CTRL-Z", state=DISABLED)
+            self.editMenu.add_command(label="Redo", accelerator="CTRL-Shift-Z", state=DISABLED)
         self.editMenu.add_command(label="Sorry, there is no Undo or Redo...\n   >:D", state=DISABLED)
         self.editMenu.add_separator()
-        self.editMenu.add_command(label="Select all", accelerator="CMD-A", command=lambda: self.master.focus_get().event_generate("<Command-a>"))
-        self.editMenu.add_separator()
-        self.editMenu.add_command(label="Cut", accelerator="CMD-X", command=lambda: self.master.focus_get().event_generate("<<Cut>>"))
-        self.editMenu.add_command(label="Copy", accelerator="CMD-C", command=lambda: self.master.focus_get().event_generate("<<Copy>>"))
-        self.editMenu.add_command(label="Paste", accelerator="CMD-V", command=lambda: self.master.focus_get().event_generate("<<Paste>>"))
+        if self.osName == "mac":
+            self.editMenu.add_command(label="Select all", accelerator="CMD-A", command=lambda: self.master.focus_get().event_generate("<Command-a>"))
+            self.editMenu.add_separator()
+            self.editMenu.add_command(label="Cut", accelerator="CMD-X", command=lambda: self.master.focus_get().event_generate("<<Cut>>"))
+            self.editMenu.add_command(label="Copy", accelerator="CMD-C", command=lambda: self.master.focus_get().event_generate("<<Copy>>"))
+            self.editMenu.add_command(label="Paste", accelerator="CMD-V", command=lambda: self.master.focus_get().event_generate("<<Paste>>"))
+        elif self.osName == "pc":
+            self.editMenu.add_command(label="Select all", accelerator="CMD-A", command=lambda: self.master.focus_get().event_generate("<Command-a>"))
+            self.editMenu.add_separator()
+            self.editMenu.add_command(label="Cut", accelerator="CTRL-X", command=lambda: self.master.focus_get().event_generate("<<Cut>>"))
+            self.editMenu.add_command(label="Copy", accelerator="CTRL-C", command=lambda: self.master.focus_get().event_generate("<<Copy>>"))
+            self.editMenu.add_command(label="Paste", accelerator="CTRL-V", command=lambda: self.master.focus_get().event_generate("<<Paste>>"))
         self.editMenu.add_separator()
         self.editMenu.add_command(label="Clear Sticky", command=self.clearSticky)
         self.editMenu.add_command(label="Delete Sticky", command=self.deleteSticky)
@@ -89,10 +106,16 @@ class MainWindow:
         # window sub-menu
         self.windowMenu = Menu(self.menu)
         self.menu.add_cascade(label="Window", menu=self.windowMenu)
-        self.fullscreenMenu = self.windowMenu.add_command(label="Go Fullscreen", accelerator="CMD-F", command=self.switchFullscreen)
+        if self.osName == "mac":
+            self.fullscreenMenu = self.windowMenu.add_command(label="Go Fullscreen", accelerator="CMD-F", command=self.switchFullscreen)
+        elif self.osName == "pc":
+            self.fullscreenMenu = self.windowMenu.add_command(label="Go Fullscreen", accelerator="CTRL-F", command=self.switchFullscreen)
         self.windowMenu.add_command(label="Auto Resize", command=self.fillerFunction, state=DISABLED)
         self.windowMenu.add_separator()
-        self.windowMenu.add_command(label="Reload", accelerator="CMD-R", command=self.fillerFunction, state=DISABLED)
+        if self.osName == "mac":
+            self.windowMenu.add_command(label="Reload", accelerator="CMD-R", command=self.fillerFunction, state=DISABLED)
+        elif self.osName == "pc":
+            self.windowMenu.add_command(label="Reload", accelerator="CTRL-R", command=self.fillerFunction, state=DISABLED)
         self.windowMenu.add_radiobutton(label="Show Line Numbers", command=self.fillerFunction)
         # help command in main menu
         self.helpMenu = Menu(self.menu)
@@ -100,10 +123,16 @@ class MainWindow:
         self.helpMenu.add_command(label="Get Help", command=self.fillerFunction, state=DISABLED)
         self.helpMenu.add_command(label="About Stickies", command=self.fillerFunction, state=DISABLED)
         # bind all stuff for hotkeys and keybaord shortcuts
-        self.master.bind_all("<Command-o>", self.loadStickies)
-        self.master.bind_all("<Command-n>", self.newSticky)
-        self.master.bind_all("<Command-s>", self.saveActiveSticky)
-        self.master.bind_all("<Command-f>", self.switchFullscreen)
+        if self.osName == "mac":
+            self.master.bind_all("<Command-o>", self.loadStickies)
+            self.master.bind_all("<Command-n>", self.newSticky)
+            self.master.bind_all("<Command-s>", self.saveActiveSticky)
+            self.master.bind_all("<Command-f>", self.switchFullscreen)
+        elif self.osName == "pc":
+            self.master.bind_all("<Command-o>", self.loadStickies)
+            self.master.bind_all("<Command-n>", self.newSticky)
+            self.master.bind_all("<Command-s>", self.saveActiveSticky)
+            self.master.bind_all("<Command-f>", self.switchFullscreen)
 
         ### call the reset function
         self.resetWidgets()
