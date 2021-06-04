@@ -1,14 +1,12 @@
+from posixpath import curdir
 import classes
 import os
 
-def toUpperAndLowerAlternating(string):
-    new = ""
-    for i in range(len(string)):
-        if i % 2 == 0:
-            new += string[i].upper()
-        else:
-            new += string[i].lower()
-    return new
+def lineToLowercase(string, line):
+    print(string, line)
+
+def lineToUppercase(string, line):
+    print(string, line)
 
 def returnOnlyActive(objList):
     for obj in objList:
@@ -17,9 +15,6 @@ def returnOnlyActive(objList):
 
 def rOA(objList):
   return returnOnlyActive(objList)
-
-def deleteFile(filePath):
-    os.remove(filePath)
 
 def setLastOpen(title):
     f = open("SETTINGS.txt", "wt")
@@ -66,22 +61,18 @@ def returnObjWithSamePath(objList, filePath):
         if obj.filePath == filePath:
             return obj
 
-def makeNewSticky(returnTitle=False, makeSave=True):
-    # makeSave changes whether this function actually makes the file.
+def makeNewSticky(returnTitle=False):
     currName = "NewSticky"
     addNum = 1
     looping = True
 
     while looping:
         if not os.path.exists("SAVES/"+currName+str(addNum)+".sticky"):
-            if makeSave:
-                toWrite = "/TITLE " + currName + str(addNum) + "\n/THEME YELLOW\n/START-CONTENT\nWelcome to the your sticky!\nComplain about life here! Or make a to do list.\nOr, do whatever!\n\nEnjoy.\n-Logan Meyers :)\n/END-CONTENT\n"
-                f = open("SAVES/"+currName+str(addNum)+".sticky", "wt")
-                f.write(toWrite)
-                f.close()
-                looping = False
-            else:
-                looping = False
+            toWrite = "/TITLE " + currName + str(addNum) + "\n/THEME YELLOW\n/START-CONTENT\nWelcome to the your sticky!\nComplain about life here! Or make a to do list.\nOr, do whatever!\n\nEnjoy.\n-Logan Meyers :)\n/END-CONTENT\n"
+            f = open("SAVES/"+currName+str(addNum)+".sticky", "wt")
+            f.write(toWrite)
+            f.close()
+            looping = False
         else:
             addNum += 1
     
@@ -96,23 +87,6 @@ def getStickySaveNameList():
             stickyList.append(File)
     
     return stickyList
-
-def stringRemoveBadChars(string):
-  allowed = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ()[],-_"
-  newString = ""
-  for char in string:
-    if char in allowed:
-      newString += char
-  return newString
-
-def renameSticky(oldFilename, newTitle):
-  f = open(oldFilename)
-  oldContents = f.read()
-  f.close()
-  f = open("SAVES/"+stringRemoveBadChars(newTitle)+".sticky", "wt")
-  f.write(oldContents)
-  f.close()
-  os.remove(oldFilename)
 
 def getAllStickies():
     stickyList = []

@@ -1,0 +1,32 @@
+/TITLE NewToChange
+/THEME YELLOW
+/START-CONTENT
+-- Things To Change (NEW) --
+[*] 1.  add save picking
+[*] 2.  add new sticky button + functionality
+[ ] 3.  Add icon for Sticky program
+[*] 4.  Add image icon toolbar, like menus but with images
+[*] 5.  add last open item in settings
+[ ] 6. add sticky sticky settings menu
+        - Title, Theme, Show Numbers, ...
+[*] 7. add fun colour themes (yellow, blue, red?, pink, orange,
+        ... green, purple, white, grey, black
+        - icons should also match colour theme)
+[*] 8. add selection support, and #13 as well
+[*] 9. copy and paste functions, would be quite useful
+[*] 10. scrolling text (up+down and left+right)
+[ ] 11. bold, italic, and underlining options
+        (would require some changes to the .sticky file)
+[ ] 12. add font button, and extra fonts + sizes
+[ ] 13. add popups, for things like saving, deleting, and errors.
+[ ] 14. idea: add text alignment, to add to my suffering as it is.
+[ ] 15. idea: text wrapping, to add to my suffering as well.
+[ ] 16. idea: add a selected-line highlight bar, like gedit does.
+[*] 17. make save, open, and lock shortcuts?
+[*] 18. add ctrl+home and end support (thanks mom! <3)
+[ ] 19. add touchbar interactions!
+[*] 20. Finish implementing tkinter instead of using Pygame
+
+That's it!
+
+/END-CONTENT

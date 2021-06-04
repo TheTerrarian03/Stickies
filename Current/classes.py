@@ -1,3 +1,4 @@
+from os import remove
 from tkinter import *
 import tkinter.messagebox
 import tkinter.filedialog
@@ -5,20 +6,37 @@ import functions as fcs
 import os
 
 class MainWindow:
-    def __init__(self, master):
-        ### set master obj
+    def __init__(self, master, version):
+        self.fullscreen = False
+        self.version = version
         self.master = master
+        self.setWindowTitle()
+        self.chosenTheme = StringVar()
+        self.showLineNumbers = BooleanVar()
 
         ### sticky objects and stuff
         self.stickies = fcs.getAllStickies()
         if fcs.getLastOpen():
-            self.stickies = fcs.setNewActive(self.stickies, fcs.getLastOpen())
+            try:
+                self.stickies = fcs.setNewActive(self.stickies, fcs.getLastOpen())
+                # doing nothing with variables to check for missing attributes
+                self.title
+                self.theme
+                self.colors
+            except AttributeError:
+                self.stickies[0].active = True
+                print("except")
         else:
             self.stickies[0].active = True
 
         # text box for entering info
         self.textBox = Text(master)
-        self.textBox.pack(expand=True, fill='both')
+        self.textBox.pack(side=LEFT, expand=True, fill='both')
+
+        # textbox scrollbar
+        self.scrollb = Scrollbar(master, command=self.textBox.yview, width=12)
+        self.scrollb.pack(side=RIGHT, fill=Y)
+        self.textBox['yscrollcommand'] = self.scrollb.set
 
         ### menu bar
         # main top menu
@@ -46,19 +64,36 @@ class MainWindow:
         self.editMenu.add_command(label="Copy", accelerator="CMD-C", command=lambda: self.master.focus_get().event_generate("<<Copy>>"))
         self.editMenu.add_command(label="Paste", accelerator="CMD-V", command=lambda: self.master.focus_get().event_generate("<<Paste>>"))
         self.editMenu.add_separator()
-        self.editMenu.add_command(label="Clear Sticky", accelerator="CMD-Delete", command=self.clearSticky)
+        self.editMenu.add_command(label="Clear Sticky", command=self.clearSticky)
+        self.editMenu.add_command(label="Delete Sticky", command=self.deleteSticky)
         self.editMenu.add_separator()
         self.editMenu.add_command(label="All To Lowercase", command=self.allToLowercase)
-        self.editMenu.add_command(label="Line To Lowercase", command=self.lineToLowercase, state=DISABLED)
         self.editMenu.add_command(label="All To Uppercase", command=self.allToUppercase)
-        self.editMenu.add_command(label="Line To Uppercase", command=self.lineToUppercase, state=DISABLED)
-        self.editMenu.add_command(label="To Chaos. Don't do it. Please.", command=self.fillerFunction, state=DISABLED)
-        # view sub-menu
-        self.viewMenu = Menu(self.menu)
-        self.menu.add_cascade(label="View", menu=self.viewMenu)
-        self.viewMenu.add_command(label="Go Fullscreen", command=self.fillerFunction, state=DISABLED)
-        self.viewMenu.add_separator()
-        self.viewMenu.add_radiobutton(label="Show Line Number", command=self.fillerFunction, state=DISABLED)
+        self.editMenu.add_command(label="To Chaos. Don't do it. Please.", command=self.allToChaos)
+        # theme sub-menu
+        self.themeMenu = Menu(self.menu)
+        self.menu.add_cascade(label="Theme", menu=self.themeMenu)
+        self.themeMenu.add_radiobutton(label="Yellow", variable=self.chosenTheme, value="YELLOW", command=self.changeTheme)
+        self.themeMenu.add_radiobutton(label="Orange", variable=self.chosenTheme, value="ORANGE", command=self.changeTheme)
+        self.themeMenu.add_radiobutton(label="Pink", variable=self.chosenTheme, value="PINK", command=self.changeTheme)
+        self.themeMenu.add_radiobutton(label="Purple", variable=self.chosenTheme, value="PURPLE", command=self.changeTheme)
+        self.themeMenu.add_radiobutton(label="Green", variable=self.chosenTheme, value="GREEN", command=self.changeTheme)
+        self.themeMenu.add_radiobutton(label="Blue", variable=self.chosenTheme, value="BLUE", command=self.changeTheme)
+        self.themeMenu.add_radiobutton(label="Dark", variable=self.chosenTheme, value="DARK", command=self.changeTheme)
+        self.themeMenu.add_radiobutton(label="Light", variable=self.chosenTheme, value="LIGHT", command=self.changeTheme)
+        # title sub-menu
+        self.titleMenu = Menu(self.menu)
+        self.menu.add_cascade(label="Title", menu=self.titleMenu)
+        self.titleMenu.add_command(label="Choose new Title", command=self.chooseNewTitle)
+        self.titleMenu.add_command(label="Clear Title to Default", command=self.clearTitleToDefault)
+        # window sub-menu
+        self.windowMenu = Menu(self.menu)
+        self.menu.add_cascade(label="Window", menu=self.windowMenu)
+        self.fullscreenMenu = self.windowMenu.add_command(label="Go Fullscreen", accelerator="CMD-F", command=self.switchFullscreen)
+        self.windowMenu.add_command(label="Auto Resize", command=self.fillerFunction, state=DISABLED)
+        self.windowMenu.add_separator()
+        self.windowMenu.add_command(label="Reload", accelerator="CMD-R", command=self.fillerFunction, state=DISABLED)
+        self.windowMenu.add_radiobutton(label="Show Line Numbers", command=self.fillerFunction)
         # help command in main menu
         self.helpMenu = Menu(self.menu)
         self.menu.add_cascade(label="Help", menu=self.helpMenu)
@@ -67,22 +102,24 @@ class MainWindow:
         # bind all stuff for hotkeys and keybaord shortcuts
         self.master.bind_all("<Command-o>", self.loadStickies)
         self.master.bind_all("<Command-n>", self.newSticky)
-        self.master.bind_all("<Command-Delete>", self.clearSticky)
         self.master.bind_all("<Command-s>", self.saveActiveSticky)
+        self.master.bind_all("<Command-f>", self.switchFullscreen)
 
         ### call the reset function
         self.resetWidgets()
+        self.setWindowTitle(stickyTitle=fcs.rOA(self.stickies).title)
     
     ### Menu functions (in order of command added)
     def newSticky(self, event=None):
         print("Making new Sticky")
         newStickyTitle = fcs.makeNewSticky(returnTitle=True)
-        print(newStickyTitle)
         self.saveActiveSticky()
         self.stickies = fcs.getAllStickies()
         self.stickies = fcs.setNewActive(self.stickies, newStickyTitle)
         self.resetWidgets()
         fcs.setLastOpen(fcs.rOA(self.stickies).title)
+        self.setWindowTitle(stickyTitle=fcs.rOA(self.stickies).title)
+        print("Finished making new Sticky")
 
     def loadStickies(self, event=None):
         print("Loading Stickies...")
@@ -93,15 +130,17 @@ class MainWindow:
             self.stickies = fcs.setNewActive(self.stickies, fcs.returnObjWithSamePath(self.stickies, chosenStickyPath).title)
             self.resetWidgets()
             fcs.setLastOpen(fcs.returnObjWithSamePath(self.stickies, chosenStickyPath).title)
+            self.setWindowTitle(stickyTitle=fcs.rOA(self.stickies).title)
 
     def saveActiveSticky(self, event=None):
         print("Saving Sticky with title: " + fcs.rOA(self.stickies).title)
         fcs.rOA(self.stickies).setText(self.textBox.get("1.0", "end"))
         fcs.rOA(self.stickies).save()
+        fcs.setLastOpen(fcs.rOA(self.stickies).title)
         print("Done Saving Sticky.")
 
     def exitWindow(self, event=None):
-        title = "Exit Stickies v2.3"
+        title = "Exit Stickies v"+str(self.version)
         exitConfirm = tkinter.messagebox.askyesno(title, "Are you sure you want to quit?")
         if exitConfirm:
             quit()
@@ -110,38 +149,139 @@ class MainWindow:
         fcs.rOA(self.stickies).content = "Silence."
         self.resetWidgets(setColors=False)
     
+    def deleteSticky(self, event=None):
+        confirm = tkinter.messagebox.askyesno("Delete Sticky", "Are you sure you want to delete this Sticky?\n("+fcs.rOA(self.stickies).title+")")
+        if confirm:
+            fcs.deleteFile(fcs.rOA(self.stickies).filePath)
+            self.stickies = fcs.getAllStickies()
+            self.stickies[0].active = True
+            self.resetWidgets()
+            fcs.setLastOpen(fcs.returnOnlyActive(self.stickies).title)
+            self.setWindowTitle(fcs.returnOnlyActive(self.stickies).title)
+        else:
+            tkinter.messagebox.showinfo("Delete Sticky", "Good job. Always keep you problems until you solve them. Keep and control them!")
+    
     def allToLowercase(self, event=None):
         self.saveActiveSticky()
         fcs.rOA(self.stickies).content = fcs.rOA(self.stickies).content.lower()
         self.resetWidgets(setColors=False)
-    
-    def lineToLowercase(self, event=None):
-        self.saveActiveSticky()
     
     def allToUppercase(self, event=None):
         self.saveActiveSticky()
         fcs.rOA(self.stickies).content = fcs.rOA(self.stickies).content.upper()
         self.resetWidgets(setColors=False)
     
-    def lineToUppercase(self, event=None):
+    def allToChaos(self, event=None):
         self.saveActiveSticky()
+        confirm = tkinter.messagebox.askyesno("Convert All Text To Chaos", "Are you REALLY sure you want to do this?\nI don't think it's a good idea...")
+        if confirm:
+            fcs.rOA(self.stickies).content = fcs.toUpperAndLowerAlternating(fcs.rOA(self.stickies).content)
+            self.resetWidgets(setColors=False)
+            tkinter.messagebox.showinfo("Convert All Text To Chaos", "I hope you enjoy what you've done.\n>:(")
+        else:
+            tkinter.messagebox.showinfo("Conver All Text To Chaos", "Good choice!\n:D")
+    
+    def changeTheme(self, event=None):
+        fcs.rOA(self.stickies).theme = self.chosenTheme.get()
+        self.saveActiveSticky()
+        oldTitle = fcs.rOA(self.stickies).title
+        self.stickies = fcs.getAllStickies()
+        self.stickies = fcs.setNewActive(self.stickies, oldTitle)
+        fcs.setLastOpen(fcs.rOA(self.stickies).title)
+        self.setWindowTitle(stickyTitle=fcs.rOA(self.stickies).title)
+        self.resetWidgets()
+    
+    def chooseNewTitle(self, event=None):
+        newTitle = None
+        self.titlePopup = popupWindow(self.master, "What is your new title? Enter here:")
+        self.master.wait_window(self.titlePopup.top)
+        newTitle = self.titlePopup.value
+
+        fcs.rOA(self.stickies).title = newTitle
+        self.saveActiveSticky()
+
+        fcs.renameSticky(fcs.rOA(self.stickies).filePath, newTitle)
+        self.stickies = fcs.getAllStickies()
+        self.stickies = fcs.setNewActive(self.stickies, newTitle)
+
+        self.setWindowTitle(stickyTitle=fcs.rOA(self.stickies).title)
+
+        fcs.setLastOpen(newTitle)
+
+    def clearTitleToDefault(self, event=None):
+        newTitle = fcs.makeNewSticky(returnTitle=True, makeSave=False)
+
+        fcs.rOA(self.stickies).title = newTitle
+        self.saveActiveSticky()
+
+        fcs.renameSticky(fcs.rOA(self.stickies).filePath, newTitle)
+        self.stickies = fcs.getAllStickies()
+        self.stickies = fcs.setNewActive(self.stickies, newTitle)
+
+        self.setWindowTitle(stickyTitle=fcs.rOA(self.stickies).title)
+
+        fcs.setLastOpen(newTitle)
+     
+    def switchFullscreen(self, event=None):
+        if self.fullscreen:
+            self.fullscreen = False
+            self.master.attributes("-fullscreen", False)
+            self.windowMenu.entryconfigure(0, label="Go Fullscreen")
+        else:
+            self.fullscreen = True
+            self.master.attributes("-fullscreen", True)
+            self.windowMenu.entryconfigure(0, label="Exit Fullscreen")
 
     ### Other functions
     def fillerFunction(self):
-        print("Unfortunately, this button hasn't been assigned any functionality yet.")
-        tkinter.messagebox.showerror("ERROR! No Functionality Has Been Added!", "Unfortunately, this button hasn't been assigned any functionality yet.")
-    
+        print("Unfortunately, this button hasn't been assigned any functionality yet. :(")
+        tkinter.messagebox.showerror("ERROR! No Functionality Has Been Added!", "Unfortunately, this button hasn't been assigned any functionality yet.\n:(")
+
+    def setWindowTitle(self, stickyTitle=""):
+        newTitle = "Stickies v"+str(self.version)+" - "+stickyTitle if stickyTitle else "Stickies v"+str(self.version)
+        self.master.title(newTitle)
+
     def resetWidgets(self, setText=True, setColors=True):
+        # theme radio button
+        self.chosenTheme.set(fcs.rOA(self.stickies).theme)
+        # setting text
         if setText:
             # delete first
             self.textBox.delete("0.0", "end")
             # then insert needed text
-            self.textBox.insert("0.0", fcs.rOA(self.stickies).content)
+            try:
+                newContent = fcs.rOA(self.stickies).content
+            except AttributeError:
+                self.stickies = fcs.getAllStickies()
+                self.stickies[0].active = True
+                fcs.setLastOpen(fcs.rOA(self.stickies).title)
+                tkinter.messagebox.showwarning("Error Load Last Used Sticky Note", "It seems the sticky note you last had open has been deleted, so we opened the first one we saw in the folder instead.")
+            newContent = fcs.rOA(self.stickies).content
+            if newContent.endswith("\n"):
+                newContent = newContent[:-1]
+            self.textBox.insert("0.0", newContent)
+        # setting colors
         if setColors:
-            # print(fcs.rOA(self.stickies).colors)
             self.textBox.config(bg=("#"+fcs.rOA(self.stickies).colors["main"]))
             self.textBox.config(fg=("#"+fcs.rOA(self.stickies).colors["text"]))
             self.textBox.config(insertbackground=("#"+fcs.rOA(self.stickies).colors["text"]))
+
+class popupWindow:
+    def __init__(self, master, question, icon=None):
+        # variable
+        self.value = None
+        # widgets and window making + setup
+        self.top = Toplevel(master)
+        self.label = Label(self.top, text=question)
+        self.label.pack(side=TOP, fill=X)
+        self.entry = Entry(self.top)
+        self.entry.pack(side=TOP)
+        self.button = Button(self.top, text="Submit", command=self.submit)
+        self.button.pack(side=TOP)
+    
+    def submit(self, event=None):
+        self.value = self.entry.get()
+        self.top.destroy()
 
 class Sticky:
     def __init__(self, filePath, title, theme, content):
