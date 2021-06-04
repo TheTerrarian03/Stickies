@@ -14,3 +14,5 @@ mainWin = cs.MainWindow(root, version=2.4)
 
 # run the mainloop, so the program actually, y'know, runs.
 root.mainloop()
+
+print("Banana")
