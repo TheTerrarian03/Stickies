@@ -1,5 +1,15 @@
 import classes
 import os
+import sys
+
+def getOS():
+    osName = sys.platform
+    if osName == "linux":
+        return "linux"
+    elif osName == "darwin":
+        return "macOS"
+    elif osName == "windows":
+        return "windows"
 
 def toUpperAndLowerAlternating(string):
     new = ""
