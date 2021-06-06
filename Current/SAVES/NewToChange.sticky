@@ -30,7 +30,7 @@
 [*] 21. Add ScrollBar for text widget
 -?- 22. Eventually, add a toolbar for my custom pixel art
 [ ] 23. Add picture and image column
-[ ] 24. Fix pixel art icons
+[*] 24. Fix pixel art icons
 [*] 25. Redesign Program Icon for modern-ness
 [*] 26. Add Delete Sticky functioanliry
                       ... don't worry about the spelling, ok?
@@ -47,10 +47,10 @@
 [*] 34. Fix View and Window menus both having the 'Fullscreen' command
 [ ] 35. Add some kind of Undo & Redo stuff. Would be really useful.
 -?- 36. Add a thing where the line you're at is highlighted
-[ ] 37. Add support for both macOS and Windows & Linux, with differences of shortcuts and icons
+[/] 37. Add support for both macOS and Windows & Linux, with differences of shortcuts and icons
 [*] 38. Fix renaming when changing Sticky title
 [ ] 39. Add thorough comments to code to help explain to future me what the f*ck is even going on
-[ ] 40. Clean up code and improve optimization for [not even needed] performance gains. Maybe it will work better on older machines?  ¯\_(ツ)_/¯
+[/] 40. Clean up code and improve optimization for [not even needed] performance gains. Maybe it will work better on older machines?  ¯\_(ツ)_/¯
 [ ] 41. Add an indicator on whether the Sticky is saved or not
         Either a star in the title or add a complete status bar
 
