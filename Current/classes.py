@@ -60,15 +60,20 @@ class MainWindow:
         if self.osName == "mac":
             self.fileMenu.add_command(label="New Sticky", accelerator="CMD-N", command=self.newSticky)
             self.fileMenu.add_command(label="Open", accelerator="CMD-O", command=self.loadStickies)
+            self.fileMenu.add_command(label="Open Default", accelerator="CMD-W", command=self.openDefault)
             self.fileMenu.add_separator()
             self.fileMenu.add_command(label="Save Sticky", accelerator="CMD-S", command=self.saveActiveSticky)
         elif self.osName == "pc":
             self.fileMenu.add_command(label="New Sticky", accelerator="CTRL-N", command=self.newSticky)
             self.fileMenu.add_command(label="Open", accelerator="CTRL-O", command=self.loadStickies)
+            self.fileMenu.add_command(label="Open Default", accelerator="CTRL-W", command=self.openDefault)
             self.fileMenu.add_separator()
             self.fileMenu.add_command(label="Save Sticky", accelerator="CTRL-S", command=self.saveActiveSticky)
+        self.fileMenu.add_command(label="Delete Sticky", command=self.deleteSticky)
         self.fileMenu.add_separator()
         self.fileMenu.add_command(label="Exit", command=self.exitWindow)
+        self.fileMenu.add_separator()
+        self.fileMenu.add_command(label="Is Saved?", command=lambda: print(self.isSaved()))
         # edit sub-menu
         self.editMenu = Menu(self.menu)
         self.menu.add_cascade(label="Edit", menu=self.editMenu)
@@ -94,7 +99,6 @@ class MainWindow:
             self.editMenu.add_command(label="Paste", accelerator="Ctrl-V", command=lambda: self.master.focus_get().event_generate("<<Paste>>"))
         self.editMenu.add_separator()
         self.editMenu.add_command(label="Clear Sticky", command=self.clearSticky)
-        self.editMenu.add_command(label="Delete Sticky", command=self.deleteSticky)
         self.editMenu.add_separator()
         self.editMenu.add_command(label="All To Lowercase", command=self.allToLowercase)
         self.editMenu.add_command(label="All To Uppercase", command=self.allToUppercase)
@@ -128,7 +132,6 @@ class MainWindow:
             self.windowMenu.add_command(label="Reload", accelerator="CMD-R", command=self.fillerFunction, state=DISABLED)
         elif self.osName == "pc":
             self.windowMenu.add_command(label="Reload", accelerator="Ctrl-R", command=self.fillerFunction, state=DISABLED)
-        self.windowMenu.add_radiobutton(label="Show Line Numbers", command=self.fillerFunction)
         # help command in main menu
         self.helpMenu = Menu(self.menu)
         self.menu.add_cascade(label="Help", menu=self.helpMenu)
@@ -138,44 +141,59 @@ class MainWindow:
         if self.osName == "mac":
             self.master.bind_all("<Command-o>", self.loadStickies)
             self.master.bind_all("<Command-n>", self.newSticky)
+            self.master.bind_all("<Command-w>", self.openDefault)
             self.master.bind_all("<Command-s>", self.saveActiveSticky)
             self.master.bind_all("<Command-f>", self.switchFullscreen)
         elif self.osName == "pc":
             self.master.bind_all("<Ctrl-o>", self.loadStickies)
             self.master.bind_all("<Ctrl-n>", self.newSticky)
+            self.master.bind_all("<Ctrl-w>", self.openDefault)
             self.master.bind_all("<Command-f>", self.switchFullscreen)
             self.master.bind_all("<Ctrl-s>", self.saveActiveSticky)
 
         ### reset widgets and set the window title
         self.resetWidgets()
         self.setWindowTitle(stickyTitle=fcs.rOA(self.stickies).title)
+
+        # confirm closing
+        self.master.protocol("WM_DELETE_WINDOW", self.exitWindow)
     
     ### Menu functions (in order of command added)
     def newSticky(self, event=None):
-        # make a sticky save
-        newStickyTitle = fcs.makeNewSticky(returnTitle=True)
-        # save the sticky now, set active, reset widgets, set last open, and window title
-        self.saveActiveSticky()
-        self.stickies = fcs.getAllStickies()
-        self.stickies = fcs.setNewActive(self.stickies, newStickyTitle)
-        self.resetWidgets()
-        fcs.setLastOpen(fcs.rOA(self.stickies).title)
-        self.setWindowTitle(stickyTitle=fcs.rOA(self.stickies).title)
+        # make sure the user saves if they want to
+        if self.isSaved():
+            # make a sticky save
+            newStickyTitle = fcs.makeNewSticky(returnTitle=True)
+            # save the sticky now, set active, reset widgets, set last open, and window title
+            self.saveActiveSticky()
+            self.stickies = fcs.getAllStickies()
+            self.stickies = fcs.setNewActive(self.stickies, newStickyTitle)
+            self.resetWidgets()
+            fcs.setLastOpen(fcs.rOA(self.stickies).title)
+            self.setWindowTitle(stickyTitle=fcs.rOA(self.stickies).title)
 
     def loadStickies(self, event=None):
         # some stuff for tkinter about file types
         filetypes = (("Sticky Saves", ".sticky"), ("All Files", "*.*"))
-        # choose file and set path to variable
-        chosenPath = tkinter.filedialog.askopenfilename(title='Open a file', initialdir=os.curdir+"/SAVES", filetypes=filetypes)
-        # if a file is chosen, then:
-        if chosenPath:
-            # yes
-            chosenStickyPath = chosenPath.split("/")[-2]+"/"+chosenPath.split("/")[-1]
-            # set new active, reset widgets, set last open, and set window title
-            self.stickies = fcs.setNewActive(self.stickies, fcs.returnObjWithSamePath(self.stickies, chosenStickyPath).title)
-            self.resetWidgets()
-            fcs.setLastOpen(fcs.returnObjWithSamePath(self.stickies, chosenStickyPath).title)
-            self.setWindowTitle(stickyTitle=fcs.rOA(self.stickies).title)
+        # make sure user saves sticky if needed
+        if self.isSaved():
+            # choose file and set path to variable
+            chosenPath = tkinter.filedialog.askopenfilename(title='Open a file', initialdir=os.curdir+"/SAVES", filetypes=filetypes)
+            # if a file is chosen, then:
+            if chosenPath:
+                # yes
+                chosenStickyPath = chosenPath.split("/")[-2]+"/"+chosenPath.split("/")[-1]
+                # set new active, reset widgets, set last open, and set window title
+                self.stickies = fcs.setNewActive(self.stickies, fcs.returnObjWithSamePath(self.stickies, chosenStickyPath).title)
+                self.commonReset()
+            
+    def openDefault(self, event=None):
+        # make sure user saves if they need to
+        if self.isSaved():
+            # get stickies, reset widgets, set last open, and set window title
+            self.stickies = fcs.getAllStickies()
+            self.stickies[0].active = True
+            self.commonReset()
 
     def saveActiveSticky(self, event=None):
         # set text from the textbox on the window
@@ -264,11 +282,8 @@ class MainWindow:
         self.setWindowTitle(stickyTitle=fcs.rOA(self.stickies).title)
         self.resetWidgets()
     
-    def chooseNewTitle(self, event=None):
-        # these 3 lines make a popup window and set 'newTitle' to what the user enters in the popup window's entry box
-        self.titlePopup = popupWindow(self.master, "What is your new title? Enter here:")
-        self.master.wait_window(self.titlePopup.top)
-        newTitle = self.titlePopup.value
+    def popupSetTitle(self, newTitle, event=None):
+        print("popupSetTitle Called")
         # set the title
         fcs.rOA(self.stickies).title = newTitle
         # save sticky
@@ -279,6 +294,11 @@ class MainWindow:
         self.stickies = fcs.setNewActive(self.stickies, newTitle)
         self.setWindowTitle(stickyTitle=fcs.rOA(self.stickies).title)
         fcs.setLastOpen(newTitle)
+
+    def chooseNewTitle(self, event=None):
+        # these 2 lines make a popup window and set 'newTitle' to what the user enters in the popup window's entry box
+        self.titlePopup = popupWindow(self.master, "What is your new title? Enter here:", self.popupSetTitle)
+        print(fcs.rOA(self.stickies).title)
 
     def clearTitleToDefault(self, event=None):
         # set 'newTitle' to the next-available default title
@@ -315,9 +335,30 @@ class MainWindow:
 
     def setWindowTitle(self, stickyTitle=""):
         # set a variable to a title
-        newTitle = "Stickies v"+str(self.version)+" - "+stickyTitle if stickyTitle else "Stickies v"+str(self.version)
+        newTitle = "Stky v"+str(self.version)+" - "+stickyTitle if stickyTitle else "Stky v"+str(self.version)
         # y'know... set the title
         self.master.title(newTitle)
+
+    def isSaved(self, event=None, preset="You have't saved your Sticky yet. "):
+        if self.textBox.get("0.0", "end") == fcs.rOA(self.stickies).content:
+            return True
+        else:
+            saveNow = tkinter.messagebox.askyesnocancel("Save Sticky?", preset+"Do you want to save before continuing?")
+            if saveNow == True:
+                self.saveActiveSticky()
+                return True
+            elif saveNow == False:
+                return True
+            else:
+                return False
+
+    def commonReset(self, event=None):
+        # reset widgets
+        self.resetWidgets()
+        # set the last open for next time
+        fcs.setLastOpen(fcs.rOA(self.stickies).title)
+        # set the window title to match
+        self.setWindowTitle(stickyTitle=fcs.rOA(self.stickies).title)
 
     def resetWidgets(self, setText=True, setColors=True):
         # theme radio button
@@ -347,9 +388,11 @@ class MainWindow:
             self.textBox.config(insertbackground=("#"+fcs.rOA(self.stickies).colors["text"]))
 
 class popupWindow:
-    def __init__(self, master, question, icon=None):
+    def __init__(self, master, question, submitFunc, icon=None):
         # variable
         self.value = None
+        # fucnction to call
+        self.submitFunc = submitFunc
         # widgets and window making + setup
         self.top = Toplevel(master)
         self.label = Label(self.top, text=question)
@@ -358,9 +401,13 @@ class popupWindow:
         self.entry.pack(side=TOP)
         self.button = Button(self.top, text="Submit", command=self.submit)
         self.button.pack(side=TOP)
+        # debugging
+        print("popupWindow created")
     
     def submit(self, event=None):
+        print("Popup submit called")
         self.value = self.entry.get()
+        self.submitFunc(self.value)
         self.top.destroy()
 
 class Sticky:

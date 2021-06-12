@@ -1,0 +1,73 @@
+/TITLE StkyToChange
+/THEME YELLOW
+/START-CONTENT
+-- Things To Change (NEW) --
+[*] 1.  add save picking
+[*] 2.  add new sticky button + functionality
+[*] 3.  Add icon for Sticky program
+[*] 4.  Add image icon toolbar, like menus but with images
+[*] 5.  add last open item in settings
+[*] 6.  add sticky sticky settings menu
+        - Title, Theme, Show Numbers, ...
+[*] 7.  add fun colour themes (yellow, blue, red?, pink, orange,
+        ... green, purple, white, grey, black
+        - icons should also match colour theme)
+[*] 8.  add selection support, and #13 as well
+[*] 9.  copy and paste functions, would be quite useful
+[*] 10. scrolling text (up+down and left+right)
+[ ] 11. bold, italic, and underlining options
+        (would require some changes to the .sticky file)
+[ ] 12. add font button, and extra fonts + sizes
+[*] 13. add popups, for things like saving, deleting, and errors.
+        Implemented in tkinter, and I know how to do it
+-?- 14. idea: add text alignment, to add to my suffering as it is.
+-?- 15. idea: text wrapping, to add to my suffering as well.
+-?- 16. idea: add a selected-line , like gedit does.
+[*] 17. make save, open, and lock shortcuts
+[*] 18. add ctrl+home and end support (thanks mom!)
+-?-  19. add touchbar interactions!
+[*] 20. Finish implementing tkinter instead of using Pygame
+[*] 21. Add ScrollBar for text widget
+-?- 22. Eventually, add a toolbar for my custom pixel art
+[ ] 23. Add picture and image column
+[*] 24. Fix pixel art icons
+[*] 25. Redesign Program Icon for modern-ness
+[*] 26. Add Delete Sticky functioanliry
+                      ... don't worry about the spelling, ok?
+-?- 27. Add close window confirmation window on CMD-Q or Close Button press
+[ ] 28. Attempt to implement a different & more user-friendly way
+        of opening Sticky saves, with a list in the menu rather
+        than having an 'tkinter.filedialog.askopenfilename' method call
+[*] 29. Fix magically-generating newlines when saving/opening Stickies
+[ ] 30. After settings menu, add line numbers functilanlyt
+                                          ... bruh
+[*] 31. Fix window title (set to "Stickies v2.#" + the sticky title)
+[*] 32. Add 'Go/Exit Fullscreen' menu item.
+[*] 33. Fix Last Open error with Sticky being deleted externally
+[*] 34. Fix View and Window menus both having the 'Fullscreen' command
+[ ] 35. Add some kind of Undo & Redo stuff. Would be really useful.
+-?- 36. Add a thing where the line you're at is highlighted
+[/] 37. Add support for both macOS and Windows & Linux, with differences of shortcuts and icons
+[*] 38. Fix renaming when changing Sticky title
+[ ] 39. Add thorough comments to code to help explain to future me what the f*ck is even going on
+[/] 40. Clean up code and improve optimization for [not even needed] performance gains. Maybe it will work better on older machines?  ¯\_(ツ)_/¯
+[ ] 41. Add an indicator on whether the Sticky is saved or not
+        Either a star in the title or add a complete status bar
+[ ] 42. Go through code and find ways to optimize code and reduce bloat
+[ ] 43. Add times when it asks the user if they want to save when doing something
+
+[ ] 99. Actually finish the damn program ._.
+        - Remove unnessessary `print()` statements
+        - Clean up Github Repo and figure out how installing works
+        - Make 'Bin/' dir for executables
+          (Types: .exe,   | .desktop | .app  )
+          (OS:    windows | linux    | macOS )
+
+Settings Menu ToDo:
+[*] Make it
+[*] Add items:
+    [*] title
+    [*] theme
+[*] add command functioanliryeyt
+[*] Finish it
+/END-CONTENT
