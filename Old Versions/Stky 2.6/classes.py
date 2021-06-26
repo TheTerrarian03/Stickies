@@ -149,13 +149,13 @@ class MainWindow:
             self.master.bind_all("<Command-s>", self.saveActiveSticky)
             self.master.bind_all("<Command-f>", self.switchFullscreen)
             self.master.bind_all("<Command-m>", self.goMinimized)
-        """elif self.osName == "pc":
+        elif self.osName == "pc":
             self.master.bind_all("<Ctrl-o>", self.loadStickies)
             self.master.bind_all("<Ctrl-n>", self.newSticky)
             self.master.bind_all("<Ctrl-w>", self.openDefault)
             self.master.bind_all("<Ctrl-s>", self.saveActiveSticky)
             self.master.bind_all("<Ctrl-f>", self.switchFullscreen)
-            self.master.bind_all("<Ctrl-m>", self.goMinimized)"""
+            self.master.bind_all("<Ctrl-m>", self.goMinimized)
 
         ### reset widgets and set the window title
         self.resetWidgets()

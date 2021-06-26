@@ -16,7 +16,7 @@ elif getOS() == "macOS":
     root.iconphoto(False, stickiesIcon)
 
 # make the class
-mainWin = cs.MainWindow(root, version=2.7)
+mainWin = cs.MainWindow(root, version=2.6)
 
 # run the mainloop, so the program actually, y'know, runs.
 root.mainloop()

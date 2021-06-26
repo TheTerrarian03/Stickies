@@ -1,0 +1,19 @@
+/TITLE StkyToChange
+/THEME YELLOW
+/START-CONTENT
+-- Things To Change --
+   (Based on thinkgs I know I can do now, with tkinter and all)
+[ ] 1. Fix opening Saves, or change code to deal with save paths rather than titles of saves in the SAVES/ directory
+[ ] 2. Font size options?
+[ ] 3. Undo and Redo would be... good.
+[ ] 4. Images column
+[ ] 5. Find a way to implement the icons I made into the Stky program, now even though I don't necessarily need them, being that tkinter can use menus and all. finding a way to implement my icons would be pretty nice.
+[ ] 6. Code optimization
+...
+[ ] 99. Actually finish the damn program ._.
+        - Remove unnessessary `print()` statements
+        - Clean up Github Repo and figure out how installing works
+        - Make 'BIN/' dir for executables
+          (Types: .exe,   | .desktop | .app  )
+          (OS:    windows | linux    | macOS )
+/END-CONTENT
