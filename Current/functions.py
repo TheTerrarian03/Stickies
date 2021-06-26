@@ -85,7 +85,7 @@ def makeNewSticky(returnTitle=False, makeSave=True):
     while looping:
         if not os.path.exists("SAVES/"+currName+str(addNum)+".sticky"):
             if makeSave:
-                toWrite = "/TITLE " + currName + str(addNum) + "\n/THEME YELLOW\n/START-CONTENT\nWelcome to the your sticky!\nComplain about life here! Or make a to do list.\nOr, do whatever!\n\nEnjoy.\n-Logan Meyers :)\n/END-CONTENT\n"
+                toWrite = "/TITLE " + currName + str(addNum) + "\n/THEME YELLOW\n/START-CONTENT\nWelcome to your new sticky!\nComplain about life here! Or make a to do list.\nOr, do whatever!\n\nEnjoy.\n-Logan Meyers :)\n/END-CONTENT\n"
                 f = open("SAVES/"+currName+str(addNum)+".sticky", "wt")
                 f.write(toWrite)
                 f.close()

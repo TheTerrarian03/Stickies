@@ -9,6 +9,7 @@ class MainWindow:
     def __init__(self, master, version):
         # initial variables needed later
         self.fullscreen = False
+        self.minimized = False
         self.version = version
         self.master = master
         self.setWindowTitle()
@@ -72,8 +73,6 @@ class MainWindow:
         self.fileMenu.add_command(label="Delete Sticky", command=self.deleteSticky)
         self.fileMenu.add_separator()
         self.fileMenu.add_command(label="Exit", command=self.exitWindow)
-        self.fileMenu.add_separator()
-        self.fileMenu.add_command(label="Is Saved?", command=lambda: print(self.isSaved()))
         # edit sub-menu
         self.editMenu = Menu(self.menu)
         self.menu.add_cascade(label="Edit", menu=self.editMenu)
@@ -86,14 +85,10 @@ class MainWindow:
         self.editMenu.add_command(label="Sorry, there is no Undo or Redo...\n   >:D", state=DISABLED)
         self.editMenu.add_separator()
         if self.osName == "mac":
-            self.editMenu.add_command(label="Select all", accelerator="CMD-A", command=lambda: self.master.focus_get().event_generate("<Command-a>"))
-            self.editMenu.add_separator()
             self.editMenu.add_command(label="Cut", accelerator="CMD-X", command=lambda: self.master.focus_get().event_generate("<<Cut>>"))
             self.editMenu.add_command(label="Copy", accelerator="CMD-C", command=lambda: self.master.focus_get().event_generate("<<Copy>>"))
             self.editMenu.add_command(label="Paste", accelerator="CMD-V", command=lambda: self.master.focus_get().event_generate("<<Paste>>"))
         elif self.osName == "pc":
-            self.editMenu.add_command(label="Select all", accelerator="Ctrl-A", command=lambda: self.master.focus_get().event_generate("<Command-a>"))
-            self.editMenu.add_separator()
             self.editMenu.add_command(label="Cut", accelerator="Ctrl-X", command=lambda: self.master.focus_get().event_generate("<<Cut>>"))
             self.editMenu.add_command(label="Copy", accelerator="Ctrl-C", command=lambda: self.master.focus_get().event_generate("<<Copy>>"))
             self.editMenu.add_command(label="Paste", accelerator="Ctrl-V", command=lambda: self.master.focus_get().event_generate("<<Paste>>"))
@@ -103,6 +98,15 @@ class MainWindow:
         self.editMenu.add_command(label="All To Lowercase", command=self.allToLowercase)
         self.editMenu.add_command(label="All To Uppercase", command=self.allToUppercase)
         self.editMenu.add_command(label="To Chaos. Don't do it. Please.", command=self.allToChaos)
+        # selection sub-menu
+        self.selectMenu = Menu(self.menu)
+        self.menu.add_cascade(label="Selection", menu=self.selectMenu)
+        if self.osName == "mac":
+            self.selectMenu.add_command(label="Select all", accelerator="CMD-A", command=lambda: self.master.focus_get().event_generate("<Command-a>"))
+        elif self.osName == "pc":
+            self.selectMenu.add_command(label="Select all", accelerator="Ctrl-A", command=lambda: self.master.focus_get().event_generate("<Command-a>"))
+        self.selectMenu.add_separator()
+        self.selectMenu.add_command(label="Print Selected", command=self.printSelection)
         # theme sub-menu
         self.themeMenu = Menu(self.menu)
         self.menu.add_cascade(label="Theme", menu=self.themeMenu)
@@ -129,9 +133,9 @@ class MainWindow:
         self.windowMenu.add_command(label="Auto Resize", command=self.fillerFunction, state=DISABLED)
         self.windowMenu.add_separator()
         if self.osName == "mac":
-            self.windowMenu.add_command(label="Reload", accelerator="CMD-R", command=self.fillerFunction, state=DISABLED)
+            self.windowMenu.add_command(label="Reload", accelerator="CMD-R", state=DISABLED)
         elif self.osName == "pc":
-            self.windowMenu.add_command(label="Reload", accelerator="Ctrl-R", command=self.fillerFunction, state=DISABLED)
+            self.windowMenu.add_command(label="Reload", accelerator="Ctrl-R", state=DISABLED)
         # help command in main menu
         self.helpMenu = Menu(self.menu)
         self.menu.add_cascade(label="Help", menu=self.helpMenu)
@@ -144,12 +148,14 @@ class MainWindow:
             self.master.bind_all("<Command-w>", self.openDefault)
             self.master.bind_all("<Command-s>", self.saveActiveSticky)
             self.master.bind_all("<Command-f>", self.switchFullscreen)
+            self.master.bind_all("<Command-m>", self.goMinimized)
         elif self.osName == "pc":
             self.master.bind_all("<Ctrl-o>", self.loadStickies)
             self.master.bind_all("<Ctrl-n>", self.newSticky)
             self.master.bind_all("<Ctrl-w>", self.openDefault)
-            self.master.bind_all("<Command-f>", self.switchFullscreen)
             self.master.bind_all("<Ctrl-s>", self.saveActiveSticky)
+            self.master.bind_all("<Ctrl-f>", self.switchFullscreen)
+            self.master.bind_all("<Ctrl-m>", self.goMinimized)
 
         ### reset widgets and set the window title
         self.resetWidgets()
@@ -263,7 +269,13 @@ class MainWindow:
             tkinter.messagebox.showinfo("Convert All Text To Chaos", "I hope you enjoy what you've done.\n>:(")
         else:
             # encourage not picking yes
-            tkinter.messagebox.showinfo("Conver All Text To Chaos", "Good choice!\n:D")
+            tkinter.messagebox.showinfo("Convert All Text To Chaos", "Good choice!\n:D")
+
+    def printSelection(self, event=None):
+        try:
+            tkinter.messagebox.showinfo("Print Text Selected", "Selected text:\n"+str(self.textBox.selection_get()))
+        except Exception as e:
+            tkinter.messagebox.showerror("Print Text Selected", "There was no selected text!")
     
     def changeTheme(self, event=None):
         # change the theme based on what's chosen
@@ -283,7 +295,6 @@ class MainWindow:
         self.resetWidgets()
     
     def popupSetTitle(self, newTitle, event=None):
-        print("popupSetTitle Called")
         # set the title
         fcs.rOA(self.stickies).title = newTitle
         # save sticky
@@ -296,9 +307,8 @@ class MainWindow:
         fcs.setLastOpen(newTitle)
 
     def chooseNewTitle(self, event=None):
-        # these 2 lines make a popup window and set 'newTitle' to what the user enters in the popup window's entry box
+        # make pop-up window
         self.titlePopup = popupWindow(self.master, "What is your new title? Enter here:", self.popupSetTitle)
-        print(fcs.rOA(self.stickies).title)
 
     def clearTitleToDefault(self, event=None):
         # set 'newTitle' to the next-available default title
@@ -326,6 +336,9 @@ class MainWindow:
             self.fullscreen = True
             self.master.attributes("-fullscreen", True)
             self.windowMenu.entryconfigure(0, label="Exit Fullscreen")
+    
+    def goMinimized(self, event=None):
+        self.master.iconify()
 
     ### Other functions
     def fillerFunction(self):
@@ -401,11 +414,8 @@ class popupWindow:
         self.entry.pack(side=TOP)
         self.button = Button(self.top, text="Submit", command=self.submit)
         self.button.pack(side=TOP)
-        # debugging
-        print("popupWindow created")
     
     def submit(self, event=None):
-        print("Popup submit called")
         self.value = self.entry.get()
         self.submitFunc(self.value)
         self.top.destroy()
