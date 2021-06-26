@@ -9,11 +9,11 @@ NOTE:
 
 Nerd Stuff:
   Modules used:
-    tkinter, os
+    tkinter, os.
   Telemetry:
-    None
+    None.
   Cloud Syncing:
-    None
+    None.
   Sticky Notes Harmed During the Making:
     Zero! :D
 
