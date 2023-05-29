@@ -1,10 +1,1 @@
-/TITLE NewSticky1
-/THEME YELLOW
-/START-CONTENT
-Welcome to your new sticky!
-Complain about life here! Or make a to do list.
-Or, do whatever!
-
-Enjoy.
--Logan Meyers :)
-/END-CONTENT
+{"TITLE": "NewSticky1", "THEME": "YELLOW", "CONTENT": "Welcome to your new sticky!\\nComplain about life here! Or make a to do list.\\nOr, do whatever!\\n\\nEnjoy.\\n-Logan Meyers :)\\n"}

@@ -1,6 +1,4 @@
-import classes
-import os
-import sys
+import classes, os, sys, json
 
 def getOS():
     osName = sys.platform
@@ -85,9 +83,10 @@ def makeNewSticky(returnTitle=False, makeSave=True):
     while looping:
         if not os.path.exists("SAVES/"+currName+str(addNum)+".sticky"):
             if makeSave:
-                toWrite = "/TITLE " + currName + str(addNum) + "\n/THEME YELLOW\n/START-CONTENT\nWelcome to your new sticky!\nComplain about life here! Or make a to do list.\nOr, do whatever!\n\nEnjoy.\n-Logan Meyers :)\n/END-CONTENT\n"
+                toWriteData = {"TITLE": (currName + str(addNum)), "THEME": "YELLOW", "CONTENT": "Welcome to your new sticky!\nComplain about life here! Or make a to do list.\nOr, do whatever!\n\nEnjoy.\n-Logan Meyers :)\n"}
+                toWriteJson = json.dumps(toWriteData)
                 f = open("SAVES/"+currName+str(addNum)+".sticky", "wt")
-                f.write(toWrite)
+                f.write(toWriteJson)
                 f.close()
                 looping = False
             else:
@@ -98,12 +97,15 @@ def makeNewSticky(returnTitle=False, makeSave=True):
     if returnTitle:
         return currName+str(addNum)
 
-def getStickySaveNameList():
+def getStickySaveNameList(includeExt=True):
     stickyList = []
 
     for File in os.listdir("SAVES/"):
         if File.endswith(".sticky"):
-            stickyList.append(File)
+            if includeExt:
+                stickyList.append(File)
+            else:
+                stickyList.append(File[:-7])
     
     return stickyList
 
@@ -114,6 +116,17 @@ def stringRemoveBadChars(string):
     if char in allowed:
       newString += char
   return newString
+
+def convertNewlines(string, direction=0):
+    newString = ""
+    # if direction is 0, then convert to newlines to \n
+    # else, convert \n to the real character
+    if direction == 0:
+        newString = string.replace("\n", "\\n")
+    elif direction == 1:
+        newString = string.replace("\\n", "\n")
+
+    return newString
 
 def renameSticky(oldFilename, newTitle):
   f = open(oldFilename)
@@ -128,31 +141,24 @@ def getAllStickies():
     stickyList = []
 
     for File in os.listdir("SAVES/"):
-        # get info from file and make sticky objects
+        # get info from file and make sticky object
         if File.endswith(".sticky"):
-            title, theme, content = None, None, ""
-            cs = False
-            done = False
+            # open file
             f = open("SAVES/"+File, "rt")
-            for line in f:
-                lineS = line.split(" ")
-                if lineS[0] == "/TITLE":
-                    title = lineS[1]
-                elif lineS[0] == "/THEME":
-                    theme = lineS[1]
-                elif lineS[0] == "/START-CONTENT\n":
-                    cs = True
-                elif lineS[0] == "/END-CONTENT\n":
-                    cs = False
-                    done = True
-                else:
-                    if cs and not done:
-                        content += line
-            # remove newlines
-            title = title[:-1]
-            if theme.endswith("\n"):
-                theme = theme[:-1]
+            # get data first, then convert to json
+            fileData = f.read()
+            jsonData = json.loads(fileData)
+            # set variables
+            title, theme, content = jsonData["TITLE"], jsonData["THEME"], jsonData["CONTENT"]
+            # convert newlines for content
+            content = convertNewlines(content, direction=1)
             # make sticky object and append
             stickyList.append(classes.Sticky("SAVES/"+File, title, theme, content))
+
+            """### debugging
+            print(File)
+            print(title)
+            print(theme)
+            print(content)"""
     
     return stickyList

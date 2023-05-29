@@ -1,9 +1,8 @@
-from os import remove
 from tkinter import *
 import tkinter.messagebox
 import tkinter.filedialog
 import functions as fcs
-import os
+import os, json
 
 class MainWindow:
     def __init__(self, master, version):
@@ -22,17 +21,17 @@ class MainWindow:
 
         ### sticky objects and stuff
         self.stickies = fcs.getAllStickies()
+        
         if fcs.getLastOpen():
-            try:
+            if fcs.getLastOpen() in fcs.getStickySaveNameList(includeExt=False):
                 self.stickies = fcs.setNewActive(self.stickies, fcs.getLastOpen())
-            except AttributeError:
+            else:
                 self.stickies[0].active = True
-                print("except")
         else:
             self.stickies[0].active = True
 
         # text box for entering info
-        self.textBox = Text(master)
+        self.textBox = Text(master, cursor="text")
         self.textBox.pack(side=LEFT, expand=True, fill='both')
 
         # textbox scrollbar
@@ -163,6 +162,9 @@ class MainWindow:
 
         # confirm closing
         self.master.protocol("WM_DELETE_WINDOW", self.exitWindow)
+
+        # title debugging
+        print("\"" + fcs.rOA(self.stickies).title + "\"")
     
     ### Menu functions (in order of command added)
     def newSticky(self, event=None):
@@ -440,9 +442,11 @@ class Sticky:
 
     # adding save functions right into the sticky info object
     def save(self):
-        toWrite = "/TITLE " + self.title + "\n/THEME " + self.theme + "\n/START-CONTENT\n" + self.content + "/END-CONTENT\n"
+        # make python dictionary
+        toWriteDict = {"TITLE": self.title, "THEME": self.theme, "CONTENT": fcs.convertNewlines(self.content, direction=0)}
+        toWriteJson = json.dumps(toWriteDict)
         f = open(self.filePath, "wt")
-        f.write(toWrite)
+        f.write(toWriteJson)
         f.close()
 
     def setText(self, newContent):  # kinda redundant tho, but whatever...
